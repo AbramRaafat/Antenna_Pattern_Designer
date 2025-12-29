@@ -123,7 +123,7 @@ $$R_{rad} = \frac{2 P_{rad}}{|I_{max}|^2}$$
 
 ---
 
-## 📡 App 3: Parabolic Reflector Designer
+##  App 3: Parabolic Reflector Designer
 
 A high-frequency design tool for reflector antennas. This app calculates the efficiency breakdown (Spillover, Taper, Blockage) and simulates the focusing properties of parabolic dishes using Ray Tracing and aperture integration.
 
@@ -133,7 +133,7 @@ A high-frequency design tool for reflector antennas. This app calculates the eff
 * **Efficiency Budget:** Automatically calculates Total Aperture Efficiency ($\epsilon_{ap}$) based on spillover, taper, and blockage.
 * **Ray Tracing:** Visualizes the focal point and sub-reflector ray paths.
 
-### 📖 Walkthrough
+### Walkthrough
 
 #### 1. System Design & Ray Tracing
 The **Ray Tracing Tab** provides a geometric verification of your design. It visualizes the primary dish, the focal point, and the feed blockage.
@@ -177,3 +177,70 @@ $$\epsilon_{ap} = \epsilon_{spillover} \cdot \epsilon_{taper} \cdot \epsilon_{ph
 The app calculates blockage efficiency by subtracting the area of the feed/sub-reflector:
 $$\epsilon_{block} = (1 - (\frac{D_{block}}{D_{main}})^2)^2$$
 
+---
+
+##  App 4: Linear Array Designer
+
+The most advanced tool in the suite, this app focuses on **Array Synthesis**. It allows users to design $N$-element linear arrays using standard algorithms to control beamwidth, side lobe levels (SLL), and steering.
+
+### Key Features
+* **Four Synthesis Methods:**
+    * **Uniform:** Standard array with equal weights.
+    * **Binomial:** Zero side lobes (weights follow Pascal's triangle).
+    * **Dolph-Chebyshev:** Optimal trade-off between Beamwidth and SLL.
+    * **Hansen-Woodward:** Optimized for end-fire directivity.
+* **Grating Lobe Detection:** Real-time safety check that alerts the user if the spacing ($d$) and scan angle create visible grating lobes.
+* **Phase Scanning:** Interactive slider to steer the main beam from $0^\circ$ to $180^\circ$.
+* **Polynomial Visualization:** For Chebyshev arrays, the app visualizes the "Visible" vs. "Invisible" regions of the polynomial.
+
+###  Walkthrough
+
+#### 1. Array Synthesis Setup
+The control panel allows you to define the physical structure ($N$, $d/\lambda$) and the excitation method.
+* **Scanning:** Move the slider to calculate the required Phase Shift ($\alpha$).
+* **Special Modes:** Selecting **Hansen-Woodward** automatically locks the scan angle to End-Fire ($0^\circ$) and calculates the specific Hansen phase shift $\alpha = -(kd + \pi/N)$.
+* **Dolph-Chebyshev:** Enables the **Target SLL** field, allowing you to specify exactly how low the side lobes should be (e.g., -20 dB).
+
+![Array Controls](https://github.com/AbramRaafat/Antenna_Pattern_Designer/blob/main/imgs/L4.png)
+*Figure 13: Configuring a 10-element Uniform array with 0.5 spacing.*
+
+#### 2. Pattern Analysis & Metrics
+The dashboard provides instant feedback on the design's validity.
+* **Grating Lobe Check:** The code checks the visible range $\psi \in [\alpha - kd, \alpha + kd]$. If an integer multiple of $2\pi$ falls in this range, the status turns **RED**.
+* **Measurements:** Automatically finds the First Null Beamwidth (FNBW) and the actual Measured SLL from the array factor peaks.
+
+![Metrics Panel](https://github.com/AbramRaafat/Antenna_Pattern_Designer/blob/main/imgs/L5.png)
+*Figure 14: Metrics showing a successful design with no grating lobes (Status: OK).*
+
+#### 3. Visualizing the Array Factor
+The app provides three distinct views to analyze the synthesized beam:
+
+**Cartesian View (The Polynomial):**
+This plot is crucial for **Dolph-Chebyshev** design. It maps the Array Factor against $\theta$.
+* **Blue Curve:** The visible region of the radiation pattern.
+* **Side Lobes:** Clearly visible at -13.0 dB for a uniform array.
+
+![Cartesian Plot](https://github.com/AbramRaafat/Antenna_Pattern_Designer/blob/main/imgs/L1.png)
+
+**3D & Polar Views:**
+These views show the spatial distribution of the energy.
+* **3D Revolved:** Visualizes the full rotational symmetry of the linear array factor (the "Cone of Silence" effect).
+* **Polar Cut:** Shows the beam steering in a standard angular format.
+
+| 3D Visualization | Polar Cut |
+| :---: | :---: |
+| ![3D](https://github.com/AbramRaafat/Antenna_Pattern_Designer/blob/main/imgs/L2.png) | ![Polar](https://github.com/AbramRaafat/Antenna_Pattern_Designer/blob/main/imgs/L3.png) |
+| *Figure 15: A steered beam showing the conical 3D structure.* | *Figure 16: The corresponding polar cut showing the main lobe and side lobes.* |
+
+###  Theoretical Background
+
+The app calculates the Array Factor ($AF$) by summing the weighted contribution of elements:
+
+$$AF = \sum_{n=1}^{N} w_n e^{j(n-1)\psi}$$
+
+Where the total phase $\psi$ includes the spatial separation and progressive phase shift:
+$$\psi = kd \cos(\theta) + \alpha$$
+
+* **Uniform:** $w_n = 1$.
+* **Binomial:** $w_n$ are binomial coefficients (no ripple, wide beam).
+* **Dolph-Chebyshev:** Weights are derived from the Inverse Fourier Transform of Chebyshev Polynomials ($T_M(x)$), ensuring all side lobes are at the same specified level ($R_0$).
