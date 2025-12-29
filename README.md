@@ -6,7 +6,7 @@ The tools are built using MATLAB App Designer, providing an interactive GUI for 
 
 ---
 
-## 📡  Aperture Blockage Analyzer
+##  App 1: Aperture Blockage Analyzer
 
 This application simulates a rectangular aperture antenna with a rectangular blockage (e.g., a feed horn or sub-reflector strut). It calculates the degradation in gain, side lobe levels (SLL), and directivity using the **Principle of Superposition**.
 
@@ -75,5 +75,105 @@ $$E(\theta) \propto Area \cdot \text{sinc}(k \cdot \text{width} \cdot u)$$
 * **Blockage Phase:** If the blockage is offset by $(d_x, d_y)$, a phase term $e^{j2\pi(d_x u + d_y v)}$ is applied to the subtracted blockage pattern.
 
 ---
+---
 
+##  App 2: Linear Dipole Analyzer
+
+This tool provides a deep dive into the physics of linear wire antennas. It visualizes the relationship between the physical length of the dipole, the current distribution along the wire, and the resulting far-field radiation pattern.
+
+### Key Features
+* **Variable Length Analysis:** Simulate dipoles from short fractions of a wavelength up to long wires ($10\lambda$).
+* **Current Distribution Models:** Compare **Sinusoidal** (Real), **Triangular** (Short approximation), and **Uniform** (Hertzian ideal) distributions.
+* **Impedance Calculation:** Estimates Radiation Resistance ($R_{rad}$) based on the current integrals.
+* **Visual Validation:** Alerts users when specific approximations (like the Short Dipole model) become invalid for the selected length.
+
+###  Walkthrough
+
+#### 1. Configuration & Modeling
+In the control panel, you can set the dipole length in terms of wavelengths ($L/\lambda$). You can also select the mathematical model for the current distribution.
+
+![Dipole Configuration](https://github.com/AbramRaafat/Antenna_Pattern_Designer/blob/main/imgs/D3.png)
+*Figure 5: Setting the length to $0.5\lambda$ (Half-Wave Dipole) and selecting the General Sinusoidal model.*
+
+#### 2. Visualizing Current Distribution
+The **Current Distribution Tab** shows how the current magnitude varies along the z-axis.
+* **Blue Line:** The normalized current magnitude $|I(z)|$.
+* **Physics Note:** Notice how the current naturally goes to zero at the ends of the wire (boundary conditions). For very short dipoles, this looks triangular.
+
+![Current Distribution](https://github.com/AbramRaafat/Antenna_Pattern_Designer/blob/main/imgs/D2.png)
+*Figure 6: A triangular current distribution, which is a valid approximation for short dipoles ($L \ll \lambda$).*
+
+#### 3. Radiation Pattern Analysis
+The app calculates the pattern by integrating the current distribution.
+* **2D Polar Plot:** Shows the E-Plane cut (the classic "figure-eight" for a half-wave dipole).
+* **3D Plot:** Visualizes the full "donut" shape characteristic of omnidirectional wire antennas.
+* **Metrics:** The dashboard displays calculated **Directivity** (e.g., 1.76 dBi for a short dipole, 2.15 dBi for $\lambda/2$) and **Half-Power Beamwidth (HPBW)**.
+
+![Dipole Pattern](https://github.com/AbramRaafat/Antenna_Pattern_Designer/blob/main/imgs/D1.jpg)
+*Figure 7: The radiation pattern view showing the omnidirectional nature of the dipole in 3D and the elevation cut in 2D.*
+
+###  Theoretical Background
+The far-field pattern $F(\theta)$ is derived from the finite integration of the current $I(z)$:
+
+$$F(\theta) = \frac{\cos(kH \cos \theta) - \cos(kH)}{\sin \theta}$$
+
+Where $H = L/2$. The app numerically integrates the Poynting vector to find the total radiated power ($P_{rad}$) and Radiation Resistance:
+
+$$R_{rad} = \frac{2 P_{rad}}{|I_{max}|^2}$$
+
+---
+
+## 📡 App 3: Parabolic Reflector Designer
+
+A high-frequency design tool for reflector antennas. This app calculates the efficiency breakdown (Spillover, Taper, Blockage) and simulates the focusing properties of parabolic dishes using Ray Tracing and aperture integration.
+
+### Key Features
+* **Dual Configurations:** Supports both **Front-Fed** and **Cassegrain** (dual-reflector) designs.
+* **Feed Modeling:** Select between an **Ideal Horn** (cosine power $q$) or a **Dipole Feed**.
+* **Efficiency Budget:** Automatically calculates Total Aperture Efficiency ($\epsilon_{ap}$) based on spillover, taper, and blockage.
+* **Ray Tracing:** Visualizes the focal point and sub-reflector ray paths.
+
+### 📖 Walkthrough
+
+#### 1. System Design & Ray Tracing
+The **Ray Tracing Tab** provides a geometric verification of your design. It visualizes the primary dish, the focal point, and the feed blockage.
+* **Inputs:** Define Frequency, Dish Diameter, and $f/D$ ratio.
+* **Interactive Sync:** Adjusting the $f/D$ ratio automatically updates the subtended angle ($\theta_0$), and vice versa.
+
+![Reflector Geometry](https://github.com/AbramRaafat/Antenna_Pattern_Designer/blob/main/imgs/P1.png)
+*Figure 8: A Front-Fed configuration showing rays focusing at the feed point. The red lines represent the blockage shadow.*
+
+#### 2. Feed Selection & Polarization
+You can model different feed sources to see how they illuminate the dish.
+* **Controls:** Select "Dipole (Eq. 16)" or "Horn" and adjust the horn's cosine power factor ($q$).
+* **Polarization Tab:** Visualizes the field vector alignment on the aperture. Note that a simple dipole feed creates cross-polarization (curved field lines) compared to an ideal Huygens source.
+
+| Feed Configuration | Polarization Analysis |
+| :---: | :---: |
+| ![Feed Config](https://github.com/AbramRaafat/Antenna_Pattern_Designer/blob/main/imgs/P3.png) | ![Polarization](https://github.com/AbramRaafat/Antenna_Pattern_Designer/blob/main/imgs/P5.png) |
+| *Figure 9: Selecting a Dipole Feed.* | *Figure 10: The resulting Field lines on the aperture.* |
+
+#### 3. Performance Metrics & Efficiency
+Reflector design is a trade-off between **Spillover** (energy missing the dish) and **Taper** (uneven illumination). The app calculates these instantly:
+
+![Design Metrics](https://github.com/AbramRaafat/Antenna_Pattern_Designer/blob/main/imgs/P4.png)
+*Figure 11: The metrics panel showing a Directivity of 43.34 dBi. The efficiency breakdown shows how the 60.8% total efficiency is derived from Spillover, Taper, and Blockage losses.*
+
+#### 4. 3D Far-Field Pattern
+Finally, the app performs a numerical integration of the aperture field (using Bessel functions for the circular aperture) to generate the high-gain pencil beam pattern.
+
+![3D Pencil Beam](https://github.com/AbramRaafat/Antenna_Pattern_Designer/blob/main/imgs/P6.png)
+*Figure 12: 3D visualization of the main beam and the first few side lobes.*
+
+###  Theoretical Background
+The Directivity $D$ is calculated based on the effective area $A_{eff}$:
+
+$$D = \frac{4\pi}{\lambda^2} A_{phys} \cdot \epsilon_{ap}$$
+
+Where the total efficiency $\epsilon_{ap}$ is the product of sub-efficiencies:
+
+$$\epsilon_{ap} = \epsilon_{spillover} \cdot \epsilon_{taper} \cdot \epsilon_{phase} \cdot \epsilon_{blockage}$$
+
+The app calculates blockage efficiency by subtracting the area of the feed/sub-reflector:
+$$\epsilon_{block} = (1 - (\frac{D_{block}}{D_{main}})^2)^2$$
 
